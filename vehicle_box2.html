@@ -1,0 +1,293 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml">
+  <head>
+    
+    <meta charset="UTF-8">
+    <title>Rect on Canvas </title>
+  </head>
+
+  <body>
+    <canvas id="canvas" width="640" height="480"></canvas>
+	
+	
+	<input type="range" name="frameSliderName" id="frameSliderId" value="0" min="0" max="99" style="width: 640px; height: 20px;" oninput="frameOutputId.value = frameSliderId.value" >
+	<output name="frameOutputName" id="frameOutputId">0</output>
+	
+	<div id="timer"> 0:0:0/0:0:0</div>
+	<br>
+    
+    <button id ="PrevID" onclick="prevCount()"><img src="icon/prev.png"  width="20" height="20" align="center" alt=""> Prev</button>
+	<button id ="PlayID" onclick="startCount()"><img src="icon/Play.png"  width="20" height="20" align="center" alt=""> Play</button>
+	<button id ="PauseID" onclick="pauseCount()"><img src="icon/Pause.png"  width="20" height="20" align="center" alt=""> Pause</button>
+	<button id ="StopID" onclick="stopCount()"><img src="icon/Stop.png"  width="20" height="20" align="center" alt=""> Stop</button>
+	<button id ="NextID" onclick="nextCount()"><img src="icon/next.png"  width="20" height="20" align="center" alt=""> Next</button>
+	
+	<br> 
+	<br> 
+	<button id ="DrawRectID" onclick="addRect()"><img src="icon/Rect.ico"  width="20" height="20" align="center" alt=""> New Object</button>
+	<button id ="DeleteRectID" onclick="deleteRect()"><img src="icon/Delete.png"  width="20" height="20" align="center" alt=""> Delete</button>
+	<button id ="DuplicateRectID" onclick="duplicateRect()"><img src="icon/Duplicate.png"  width="20" height="20" align="center" alt=""> Duplicate</button>
+	<button id ="ClearAllID" onclick="clearAllRect()"><img src="icon/ClearAll.png"  width="20" height="20" align="center" alt=""> Clear All</button>
+	<button id ="ClearAllID" onclick="getAllRectangulars()"><img src="icon/Rect.ico"  width="20" height="20" align="center" alt=""> getAllRectangulars</button>
+	
+	<br> Rect Numb :
+	<output name="RectNumbName" id="RectNumbID">0</output>
+	
+	<br> Frame Array :
+	<output name="testonly" id="testonly">0</output>
+		
+    <script src="fabric.min.js"></script>
+    <script src="fabric.canvasex.js"></script>
+    <script src="my_box.js"></script>
+    <script src="video_player.js"></script>
+	
+	<script>	
+	var fps = 0;
+	var max_fps = 99; //will be counted when video is uploaded 
+	var canvas;
+	
+	function startVideo() {
+	   
+	   fps = document.getElementById("frameSliderId").value;
+	   ++fps;
+	   var totalSeconds = Math.floor(fps / 30);
+	   var hour = Math.floor(totalSeconds /3600);
+	   var minute = Math.floor((totalSeconds - hour*3600)/60);
+	   var seconds = totalSeconds - (hour*3600 + minute*60);
+	   
+	   var max_totalSeconds = Math.floor(max_fps / 30);
+	   var max_hour = Math.floor(max_totalSeconds /3600);
+	   var max_minute = Math.floor((max_totalSeconds - max_hour*3600)/60);
+	   var max_seconds = max_totalSeconds - (max_hour*3600 + max_minute*60);
+	   var max_frame = max_fps;
+	   
+	   if(fps >= max_fps){
+			clearInterval(timerVar);
+			fps = max_fps;
+			document.getElementById("timer").value = max_fps;
+		}
+	   document.getElementById("timer").innerHTML = hour + ":" + minute + ":" + seconds + "/" + max_hour + ":" + max_minute + ":" + max_seconds;
+	   
+	   document.getElementById("frameSliderId").value = fps;
+	   document.getElementById("frameOutputId").value = fps;
+	   
+	}
+	var timerVar;
+	
+	function startCount(){
+		timerVar = setInterval(startVideo, 33.33);
+	}
+	
+	function pauseCount(){
+	   fps = document.getElementById("frameSliderId").value;
+	   clearInterval(timerVar);
+	   document.getElementById("frameSliderId").value = fps;
+	   document.getElementById("frameOutputId").value = fps;
+	   
+	   document.getElementById("timer").innerHTML = hour + ":" + minute + ":" + seconds + "/" + max_hour + ":" + max_minute + ":" + max_seconds;
+	   
+	}
+	
+	function stopCount(){
+		clearInterval(timerVar);
+	    document.getElementById("frameSliderId").value = 0;
+	    document.getElementById("frameOutputId").value = 0;
+		
+		fps = 0;
+		document.getElementById("timer").innerHTML = hour + ":" + minute + ":" + seconds + "/" + max_hour + ":" + max_minute + ":" + max_seconds;
+	   
+	}
+	
+	function nextCount(){
+	   fps = ++document.getElementById("frameSliderId").value;
+	   
+	   if(fps >= max_fps){
+		fps = max_fps;
+	   }
+	   clearInterval(timerVar);
+	   document.getElementById("frameSliderId").value = fps;
+	   document.getElementById("frameOutputId").value = fps;
+	   
+	   document.getElementById("timer").innerHTML = hour + ":" + minute + ":" + seconds + "/" + max_hour + ":" + max_minute + ":" + max_seconds;
+	   
+	}
+	
+	function prevCount(){
+	   fps = --document.getElementById("frameSliderId").value;
+	   
+	   if(fps <= 0){
+		fps = 0;
+	   }
+	   
+	   clearInterval(timerVar);
+	   document.getElementById("frameSliderId").value = fps;
+	   document.getElementById("frameOutputId").value = fps;
+	   
+	   document.getElementById("timer").innerHTML = hour + ":" + minute + ":" + seconds + "/" + max_hour + ":" + max_minute + ":" + max_seconds;
+	   
+	}
+	/*ANDIKA*/
+	function getAllRectangulars() {
+		var temp_objs = canvas.getObjects();
+		for(i = 0; i<temp_objs.length;i++) {
+			if( temp_objs[i].get('type') == 'rect') {
+				var temp_obj = temp_objs[i];
+				rect_id = temp_obj.rect_id
+			    x1 = temp_obj.get('left');
+			    y1 = temp_obj.get('top');
+			    x2 = x1 + temp_obj.getHeight();
+			    y2 = y1 + temp_obj.getWidth();
+			    console.log(rect_id +": (" + x1 + ", " + y1 + ") (" + x2 + ", " + y2 + ")");
+				document.getElementById("RectNumbID").innerHTML = rect_id +": (" + x1 + ", " + y1 + ") (" + x2 + ", " + y2 + ")";
+	   
+			}
+		}
+	}
+	/*ANDIKA*/
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	
+	//int[][]frameArray = new int[5][5];
+	
+///rectangular class
+	class RectClass {
+		constructor(x, y, height, width) {
+		this.x = x;
+		this.y = y;
+		this.height = height;
+		this.width = width;
+		}
+	}	
+///end of rectangular class
+	
+	/*0214*/ var frameArray = [];
+	var frameProp = 5;
+	//frameProp[0] = rect_numb;
+	//frameProp[1] = x;
+	//frameProp[2] = y;
+	//frameProp[3] = width;
+	//frameProp[4] = height;
+	
+	var max_rect = 10000;
+	for(var i=0;i<max_fps;i++){
+		frameArray[i] =[];
+		for(var j=0;j<max_rect;j++){
+			frameArray[i][j] = new RectClass();
+		}
+	}
+	
+	/*ANDIKA*/var rect_array = [];
+	var rect_numb = 0;
+		
+    (function() { //same as while(true)
+		
+        canvas = this.__canvas = new fabric.CanvasEx('canvas');
+  	  	/*ANDIKA*/canvas.on('object:modified', modifiedHandler);
+        function setBackImage() {
+  	      
+	  		var str1 = "frame/" + document.getElementById("frameOutputId").value;
+	  		var str2 = '.jpg';
+	  		var frameImage = str1.concat(str2);
+	  		setBackgroundImage(frameImage);
+	  		  
+	  		//document.getElementById("timer").innerHTML = frameImage;
+	  	}
+  	  setInterval(setBackImage, 10);
+        
+  		  
+        //double click event will automatically add a new rectangle of fixed size
+        canvas.on('mouse:dblclick', function(options) {
+			var mousePos = util_getMousePos(canvas, window.event);
+			var t_width = 30;
+			var t_height = 30;
+			var t_param = {left: mousePos.x - (t_width/2),
+							top: mousePos.y - (t_height/2),
+							width: t_width,
+							height: t_height}
+			addRect(t_param);
+			
+        });
+		
+		setInterval(options, 10);
+  		
+        //utility function to get mouse position
+        function util_getMousePos(canvas, evt) {
+          var rect = document.getElementById('canvas').getBoundingClientRect();
+          return {
+            x: evt.clientX - rect.left,
+            y: evt.clientY - rect.top
+          };
+        }
+		
+		function getRandomColor() {
+			var letters = '0123456789ABCDEF';
+			var color = '#';
+			for (var i = 0; i < 6; i++ ) {
+				color += letters[Math.floor(Math.random() * 16)];
+			}
+			return color;
+		}
+		
+		var id = 0;
+        function addRect(param) {
+			var rect = new fabric.Rect({
+				left: param.left,
+				top: param.top,
+				width: param.width,
+				height: param.height,
+				fill: 'rgba(0,0,0,0)', //transparent
+				//stroke: 'rgba(255,0,0,1)',
+				stroke: getRandomColor(),
+				strokeWidth: 1.2,
+				cornerColor: 'white',
+				cornerSize: 6,
+				transparentCorners: false,
+			//	/*ANDIKA*/rect_id: Math.random().toString(36).slice(2)
+				/*RIQ*/rect_id: id
+			});
+			
+			/*RIQ*/ ++id;
+			/*ANDIKA*/rect_array.push(rect);
+				canvas.add(rect);
+				canvas.renderAll();    
+				
+				++rect_numb;
+				
+			document.getElementById("RectNumbID").innerHTML =	rect_numb + " : " + 
+																param.left+ " : " + 
+																param.top+ " : " + 
+																param.width+ " : " + 
+																param.height;
+			
+			/*0214*/   for(var i=0;i<max_fps;i++){
+				frameArray[i][rect_numb].x = t_param.left;
+				frameArray[i][rect_numb].y = t_param.top;
+				frameArray[i][rect_numb].width = t_param.width;
+				frameArray[i][rect_numb].height = t_param.height;
+			}
+			
+			for(var i=0;i<rect_numb;i++){
+			/*0214*/  document.getElementById("testonly").innerHTML = fps + ":" +
+																	  frameArray[i][rect_numb].x + ":" +
+																	  frameArray[i][rect_numb].y + ":" +
+																	  frameArray[i][rect_numb].width + ":" + 
+																	  frameArray[i][rect_numb].height; 
+			}
+		}
+		
+        function setBackgroundImage(image_path) {
+          fabric.Image.fromURL(image_path, function(img) {
+             img.set({width: canvas.width, height: canvas.height, originX: 'left', originY: 'top'});
+             canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
+          });
+        }
+  
+    })();
+
+  </script>
+
+  </body>
+  
+</html>
+
+    
+
+
